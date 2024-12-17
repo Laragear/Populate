@@ -1,0 +1,11 @@
+.idea
+build
+coverage
+vendor
+
+composer.lock
+
+.phpunit.cache
+.phpunit.result.cache
+.phpunit.xml.dist.bak
+.phpunit.xml.bak

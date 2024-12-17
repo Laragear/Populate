@@ -1,0 +1,35 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Laragear\Populate\Seeder;
+
+class {{ class }} extends Seeder
+{
+    /**
+     * Run logic before executing the seed steps.
+     */
+    public function before(): void
+    {
+        // if (false) {
+        //     $this->skip();
+        // }
+    }
+
+    /**
+     * Populate the database with records.
+     */
+    public function seed(): void
+    {
+        //
+    }
+
+    /**
+     * Run logic after executing the seed steps.
+     */
+    public function after(): void
+    {
+        //
+    }
+}

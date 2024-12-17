@@ -1,0 +1,62 @@
+{
+    "name": "laragear/populate",
+    "description": "",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Italo Baeza C.",
+            "email": "DarkGhostHunter@Gmail.com",
+            "homepage": "https://github.com/DarkGhostHunter"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/Laragear/Populate",
+        "issues": "https://github.com/Laragear/Populate/issues"
+    },
+    "require": {
+        "php": "^8.2",
+        "laragear/meta": "^4.0.0",
+        "laragear/meta-model": "^2.0.0"
+    },
+    "require-dev": {
+        "laragear/meta-testing": "3.*",
+        "orchestra/testbench": "9.*|8.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laragear\\Populate\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit --coverage-clover build/logs/clover.xml",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Laragear\\Populate\\PopulateServiceProvider"
+            ]
+        }
+    },
+    "funding": [
+        {
+            "type": "Github Sponsorship",
+            "url": "https://github.com/sponsors/DarkGhostHunter"
+        },
+        {
+            "type": "Paypal",
+            "url": "https://paypal.me/darkghosthunter"
+        }
+    ]
+}

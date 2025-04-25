@@ -98,13 +98,13 @@ class UserSeeder extends Seeder
 
 > [!TIP]
 > 
-> If you already created your application seeders, replace the `Illuminate\Database\Seeder` import to `Laragear\Populator\Seeder`.
+> If you already created your application seeders, replace the `Illuminate\Database\Seeder` import to `Laragear\Populate\Seeder`.
 > 
 > ```php
 > namespace Database\Seeders;
 > 
 > // use Illuminate\Database\Seeder;
-> use Laragear\Populator\Seeder;
+> use Laragear\Populate\Seeder;
 > 
 > class UserSeeder extends Seeder
 > {
@@ -114,7 +114,7 @@ class UserSeeder extends Seeder
 
 ## Usage 
 
-Instead of using the `run()` method in your seeder, this librarty seeders use the concept of **Seed Steps**. A Seed Step is just a public method that starts with `seed`, or uses the `Laragear\Populator\Attributes\SeedStep` attribute, named to briefly describe the records that are being inserted.
+Instead of using the `run()` method in your seeder, this librarty seeders use the concept of **Seed Steps**. A Seed Step is just a public method that starts with `seed`, or uses the `Laragear\Populate\Attributes\SeedStep` attribute, named to briefly describe the records that are being inserted.
 
 The container instantiates the Seeder and also calls each Seed Step, so you can use Dependency Injection as arguments anywhere you require.
 
@@ -122,8 +122,8 @@ The container instantiates the Seeder and also calls each Seed Step, so you can 
 namespace Database\Seeders;
 
 use Database\Factories\UserFactory;
-use Laragear\Populator\Attributes\SeedStep;
-use Laragear\Populator\Seeder;
+use Laragear\Populate\Attributes\SeedStep;
+use Laragear\Populate\Seeder;
 use App\TicketGenerator;
 
 class UserSeeder extends Seeder

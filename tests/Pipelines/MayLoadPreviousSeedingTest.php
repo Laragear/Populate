@@ -60,7 +60,7 @@ class MayLoadPreviousSeedingTest extends TestCase
 
         $command = $this->mock(Command::class, function (MockInterface $mock) {
             $mock->expects('option')->with('continue')->andReturnTrue();
-            $mock->expects('line')->with('Continuing from previous incomplete seeding.');
+            $mock->expects('comment')->with('Continuing from previous incomplete seeding.');
         });
 
         $passable = new Seeding($this->app, $command, new EmptySeeder(), [], class: 'test');

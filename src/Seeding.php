@@ -46,14 +46,6 @@ class Seeding
     }
 
     /**
-     * Print a line in the console.
-     */
-    public function line(string $line): void
-    {
-        $this->command?->line($line);
-    }
-
-    /**
      * Print a comment in the console.
      */
     public function comment(string $string): void

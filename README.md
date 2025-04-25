@@ -374,6 +374,18 @@ The seeding continuation is tied to the Seeder you call in the command, which by
 > 
 > When using the `--continue` options, [transactions](#disable-transactions) will be automatically turned on.
 
+The console output will mark the seed step as `CONTINUE` if the step it already ran.
+
+    php artisan db:seed
+    
+    INFO Seeding database.
+    
+    Database\Seeders\UserSeeder ...................................... RUNNING
+    ~ Seed normal users ............................................. CONTINUE
+    ~ Seed non-authorized users ......................................... DONE
+    Database\Seeders\UserSeeder ................................... 32 ms DONE
+
+
 ### Disable transactions
 
 Laragear Populate's Seeders wraps each Seed Step into its own transaction using the default database connection. This means that, when a Seed Step fails, all database operations inside that method are rolled back.

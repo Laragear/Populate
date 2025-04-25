@@ -44,12 +44,10 @@ class MaySkipSeeder
      */
     protected function outputSkipped(Seeding $seeding, SkipSeeding $e): void
     {
-        $seeding->command?->outputComponents()->twoColumnDetail(
-            '~ '.$seeding->seeder::class, '<fg=blue;options=bold>SKIPPED</>',
-        );
+        $seeding->twoColumn('~ '.$seeding->seeder::class, '<fg=blue;options=bold>SKIPPED</>');
 
         if ($e->getMessage()) {
-            $seeding->command?->comment("  {$e->getMessage()}");
+            $seeding->comment("  {$e->getMessage()}");
         }
     }
 }

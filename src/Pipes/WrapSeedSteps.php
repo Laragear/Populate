@@ -7,6 +7,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laragear\Populate\Attributes\SeedStep;
@@ -41,15 +42,18 @@ class WrapSeedSteps
         $seeding->steps->transform(
             function (ReflectionMethod $method) use ($seeding, $withoutEvents): Closure {
                 return function () use ($seeding, $method, $withoutEvents): void {
-                    [$output, $silent] = $this->parseMethodAttribute($method, $withoutEvents);
+                    $seedStep = $this->parseMethodAttribute($method, $withoutEvents);
 
-                    if ($this->seedStepAlreadyRan($seeding, $method->name, $output)) {
+                    if ($this->seedStepAlreadyRan($seeding, $method->name, $seedStep)) {
                         return;
                     }
 
                     $this->parseResult(
                         $this->handleSeedStep(
-                            $seeding, $method, $output, $seeding->parameters[$method->name] ?? [], $silent
+                            $seeding,
+                            $method,
+                            $seedStep,
+                            $seeding->parameters[$method->name] ?? [],
                         ),
                     );
 
@@ -64,10 +68,10 @@ class WrapSeedSteps
     /**
      * Check if the method already ran.
      */
-    protected function seedStepAlreadyRan(Seeding $seeding, string $method, string $output): bool
+    protected function seedStepAlreadyRan(Seeding $seeding, string $method, SeedStep $step): bool
     {
         if (isset($this->data->continue[$seeding->seeder::class][$method])) {
-            $seeding->command?->outputComponents()->twoColumnDetail("~ $output", '<fg=gray;options=bold>CONTINUE</>');
+            $seeding->twoColumn("~ $step->as", '<fg=gray;options=bold>CONTINUE</>');
 
             return true;
         }
@@ -96,27 +100,30 @@ class WrapSeedSteps
     protected function handleSeedStep(
         Seeding $seeding,
         ReflectionMethod $method,
-        string $output,
+        SeedStep $step,
         array $parameters,
-        bool $withoutEvents,
     ): mixed {
-        {
-            try {
-                $result = $this->runSeedStep($seeding, $method, $parameters, $withoutEvents);
-            } catch (SkipSeeding $e) {
-                return $this->outputSeedStepSkipped($seeding, $output, $e);
-            } catch (Throwable $e) {
-                $seeding->command?->outputComponents()->twoColumnDetail("! $output", '<fg=red;options=bold>ERROR</>');
+        try {
+            $result = $this->runSeedStep($seeding, $method, $parameters, $step->withoutModelEvents);
+        } catch (SkipSeeding $e) {
+            return $this->outputSeedStepSkipped($seeding, $step, $e);
+        } catch (UniqueConstraintViolationException $e) {
+            if ($seeding->seeder->useTransactions && $step->retryUnique > 0) {
+                $seeding->twoColumn("~ $step->as", '<fg=yellow;options=bold>RETRY UNIQUE</>');
 
-                throw $e;
+                --$step->retryUnique;
+
+                return $this->handleSeedStep($seeding, $method, $step, $seeding->parameters[$method->name] ?? []);
             }
 
-            $seeding->command?->outputComponents()->twoColumnDetail(
-                "~ $output", '<fg=green;options=bold>DONE</>',
-            );
-
-            return $result;
+            $this->throwStepError($seeding, $step, $e);
+        } catch (Throwable $e) {
+            $this->throwStepError($seeding, $step, $e);
         }
+
+        $seeding->twoColumn("~ $step->as", '<fg=green;options=bold>DONE</>');
+
+        return $result;
     }
 
     /**
@@ -135,12 +142,12 @@ class WrapSeedSteps
         if ($silent) {
             if (method_exists($seeding->seeder, 'withoutModelEvents')) {
                 return $seeding->seeder->withoutModelEvents(
-                    fn(): mixed => $seeding->container->call([$seeding->seeder, $method->name], $parameters)
+                    fn(): mixed => $seeding->container->call([$seeding->seeder, $method->name], $parameters),
                 )();
             }
 
             return Model::withoutEvents(
-                fn(): mixed => $seeding->container->call([$seeding->seeder, $method->name], $parameters)
+                fn(): mixed => $seeding->container->call([$seeding->seeder, $method->name], $parameters),
             );
         }
 
@@ -149,35 +156,40 @@ class WrapSeedSteps
 
     /**
      * Parse the Method Attribute to retrieve the output name and events configuration.
-     *
-     * @return array{string, bool}
      */
-    protected function parseMethodAttribute(ReflectionMethod $method, bool $withoutModelEvents): array
+    protected function parseMethodAttribute(ReflectionMethod $method, bool $withoutModelEvents): SeedStep
     {
-        if ($attribute = Arr::first($method->getAttributes(SeedStep::class))?->newInstance()) {
-            return [
-                $attribute->as ?: Str::ucfirst(Str::snake($method->name, ' ')),
-                $attribute->withoutModelEvents ?? $withoutModelEvents
-            ];
-        }
+        /** @var \Laragear\Populate\Attributes\SeedStep $attribute */
+        $attribute = Arr::first($method->getAttributes(SeedStep::class))?->newInstance()
+            ?? new SeedStep();
 
-        return [Str::ucfirst(Str::snake($method->name, ' ')), $withoutModelEvents];
+        $attribute->as = $attribute->as ?: Str::ucfirst(Str::snake($method->name, ' '));
+        $attribute->withoutModelEvents ??= $withoutModelEvents;
+
+        return $attribute;
     }
 
     /**
      * Outputs the Seed Step that was skipped to the console.
      */
-    protected function outputSeedStepSkipped(Seeding $seeding, string $output, SkipSeeding $e): false
+    protected function outputSeedStepSkipped(Seeding $seeding, SeedStep $seedStep, SkipSeeding $e): false
     {
-        $seeding->command?->outputComponents()->twoColumnDetail(
-            "~ $output", '<fg=blue;options=bold>SKIPPED</>',
-        );
+        $seeding->twoColumn("~ $seedStep->as", '<fg=blue;options=bold>SKIPPED</>');
 
         if ($e->getMessage()) {
-            $seeding->command?->comment("  {$e->getMessage()}");
+            $seeding->comment("  {$e->getMessage()}");
         }
 
         return false;
     }
 
+    /**
+     * Throws an exception and output in the console when the Seed Step errors.
+     */
+    protected function throwStepError(Seeding $seeding, SeedStep $step, Throwable $e): never
+    {
+        $seeding->twoColumn("! $step->as", '<fg=red;options=bold>ERROR</>');
+
+        throw $e;
+    }
 }

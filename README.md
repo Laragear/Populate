@@ -386,6 +386,34 @@ The console output will mark the seed step as `CONTINUE` if the step it already 
     Database\Seeders\UserSeeder ................................... 32 ms DONE
 
 
+### Recovering from Unique Constraints Violations
+
+Sometimes a Seed Step may throw a _Unique Constraints Violation_ exception, which happens when trying to insert a value that already exists on _unique_ column, like primary keys. It's not too common, but it usually happens when a random generator mistakenly repeats a value, like emails or text. 
+
+[If transactions are not disabled](#disable-transactions), the Populator will retry the Seed Step again, showing the retry on the console. If the error persists, it will be thrown. 
+
+    php artisan db:seed
+    
+    INFO Seeding database.
+    
+    Database\Seeders\UserSeeder ...................................... RUNNING
+    ~ Seed normal users ............................................. CONTINUE
+    ~ Seed non-authorized users ................................. RETRY UNIQUE
+    ~ Seed non-authorized users ......................................... DONE
+    Database\Seeders\UserSeeder ................................... 32 ms DONE
+
+You can set the `retryUnique` property of the `SeedStep` attribute to any number of retries from the default `1`. Alternatively, setting it to `false` or `0` will disable it.
+
+```php
+use Laragear\Populate\Attributes\SeedStep;
+
+#[SeedStep(retryUnique: false)]
+public function bannedUsers
+{
+    // ...
+}
+```
+
 ### Disable transactions
 
 Laragear Populate's Seeders wraps each Seed Step into its own transaction using the default database connection. This means that, when a Seed Step fails, all database operations inside that method are rolled back.

@@ -36,4 +36,20 @@ class Seeding
     {
         return Str::replace('\\', '_', $this->class);
     }
+
+    /**
+     * Print two columns in the console.
+     */
+    public function twoColumn(string $first, ?string $second = null): void
+    {
+        $this->command?->outputComponents()->twoColumnDetail($first, $second);
+    }
+
+    /**
+     * Print a comment in the console.
+     */
+    public function comment(string $string): void
+    {
+        $this->command?->comment($string);
+    }
 }

@@ -79,6 +79,6 @@ class MayLoadPreviousSeeding
      */
     protected function outputContinuation(Seeding $seeding): void
     {
-        $seeding->command?->line('Continuing from previous incomplete seeding.');
+        $seeding->comment('Continuing from previous incomplete seeding.');
     }
 }

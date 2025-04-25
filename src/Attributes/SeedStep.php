@@ -10,8 +10,11 @@ class SeedStep
     /**
      * Create a new Seed Step instance.
      */
-    public function __construct(public string $as = '', public ?bool $withoutModelEvents = null)
-    {
+    public function __construct(
+        public string $as = '',
+        public ?bool $withoutModelEvents = null,
+        public false|int $retryUnique = 1,
+    ) {
         //
     }
 }

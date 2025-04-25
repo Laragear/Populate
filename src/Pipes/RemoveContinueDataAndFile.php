@@ -9,6 +9,9 @@ use Laragear\Populate\ContinueData;
 use Laragear\Populate\Populator;
 use Laragear\Populate\Seeding;
 
+/**
+ * @internal
+ */
 class RemoveContinueDataAndFile
 {
     /**

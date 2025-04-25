@@ -2,18 +2,18 @@
 
 namespace Tests\Pipelines;
 
-use Closure;
 use Exception;
 use Illuminate\Console\View\Components\Factory;
 use Illuminate\Database\Console\Seeds\SeedCommand;
 use Illuminate\Database\Eloquent\Factories\Factory as EloquentFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Event;
+use Laragear\Populate\Attributes\SeedStep;
 use Laragear\Populate\ContinueData;
 use Laragear\Populate\Pipes\WrapSeedSteps;
+use Laragear\Populate\Seeder;
 use Laragear\Populate\Seeding;
-use Mockery;
 use Mockery\MockInterface;
 use ReflectionMethod;
 use Tests\Fixtures\NamedSeedStepSeeder;
@@ -48,16 +48,16 @@ class WrapSeedStepsTest extends TestCase
             ->handle($passable, function (Seeding $seeding) {
                 static::assertIsCallable($seeding->steps[0]);
 
-                $seeding->steps->each(fn ($step) => $step());
+                $seeding->steps->each(fn($step) => $step());
 
-                static::assertContains(VariedSeeder::class . '::seed', $seeding->seeder->ran);
+                static::assertContains(VariedSeeder::class.'::seed', $seeding->seeder->ran);
             });
     }
 
     public function test_seed_step_skips_if_already_ran(): void
     {
         $this->app->instance(ContinueData::class, new ContinueData([
-            VariedSeeder::class => ['seed' => true]
+            VariedSeeder::class => ['seed' => true],
         ]));
 
         $seeder = new VariedSeeder();
@@ -82,19 +82,19 @@ class WrapSeedStepsTest extends TestCase
             ->handle($passable, function (Seeding $seeding) {
                 static::assertCount(3, $seeding->steps);
 
-                $seeding->steps->each(fn ($step) => $step());
+                $seeding->steps->each(fn($step) => $step());
 
                 static::assertCount(2, $seeding->seeder->ran);
-                static::assertNotContains(VariedSeeder::class . '::seed', $seeding->seeder->ran);;
-                static::assertContains(VariedSeeder::class . '::seedSecond', $seeding->seeder->ran);
-                static::assertContains(VariedSeeder::class . '::withAttribute', $seeding->seeder->ran);
+                static::assertNotContains(VariedSeeder::class.'::seed', $seeding->seeder->ran);
+                static::assertContains(VariedSeeder::class.'::seedSecond', $seeding->seeder->ran);
+                static::assertContains(VariedSeeder::class.'::withAttribute', $seeding->seeder->ran);
             });
     }
 
     public function test_seed_step_skips_outputs_custom_name(): void
     {
         $this->app->instance(ContinueData::class, new ContinueData([
-            NamedSeedStepSeeder::class => ['withAttribute' => true]
+            NamedSeedStepSeeder::class => ['withAttribute' => true],
         ]));
 
         $seeder = new NamedSeedStepSeeder();
@@ -119,12 +119,12 @@ class WrapSeedStepsTest extends TestCase
             ->handle($passable, function (Seeding $seeding) {
                 static::assertCount(3, $seeding->steps);
 
-                $seeding->steps->each(fn ($step) => $step());
+                $seeding->steps->each(fn($step) => $step());
 
                 static::assertCount(2, $seeding->seeder->ran);
-                static::assertContains(NamedSeedStepSeeder::class . '::seed', $seeding->seeder->ran);;
-                static::assertContains(NamedSeedStepSeeder::class . '::seedSecond', $seeding->seeder->ran);
-                static::assertNotContains(NamedSeedStepSeeder::class . '::withAttribute', $seeding->seeder->ran);
+                static::assertContains(NamedSeedStepSeeder::class.'::seed', $seeding->seeder->ran);
+                static::assertContains(NamedSeedStepSeeder::class.'::seedSecond', $seeding->seeder->ran);
+                static::assertNotContains(NamedSeedStepSeeder::class.'::withAttribute', $seeding->seeder->ran);
             });
     }
 
@@ -142,12 +142,12 @@ class WrapSeedStepsTest extends TestCase
             ->handle($passable, function (Seeding $seeding) {
                 static::assertCount(3, $seeding->steps);
 
-                $seeding->steps->each(fn ($step) => $step());
+                $seeding->steps->each(fn($step) => $step());
 
                 static::assertCount(3, $seeding->seeder->ran);
-                static::assertContains(VariedSeederWithoutModelEvents::class . '::seed', $seeding->seeder->ran);;
-                static::assertContains(VariedSeederWithoutModelEvents::class . '::seedSecond', $seeding->seeder->ran);
-                static::assertContains(VariedSeederWithoutModelEvents::class . '::withAttribute', $seeding->seeder->ran);
+                static::assertContains(VariedSeederWithoutModelEvents::class.'::seed', $seeding->seeder->ran);
+                static::assertContains(VariedSeederWithoutModelEvents::class.'::seedSecond', $seeding->seeder->ran);
+                static::assertContains(VariedSeederWithoutModelEvents::class.'::withAttribute', $seeding->seeder->ran);
             });
     }
 
@@ -201,7 +201,7 @@ class WrapSeedStepsTest extends TestCase
             ->handle($passable, function (Seeding $seeding) {
                 static::assertCount(3, $seeding->steps);
 
-                $seeding->steps->each(fn ($step) => $step());
+                $seeding->steps->each(fn($step) => $step());
 
                 static::assertCount(1, $seeding->seeder->ran);
                 static::assertContains(VariedSeederSkipsSeedStep::class.'::seed', $seeding->seeder->ran);
@@ -234,11 +234,11 @@ class WrapSeedStepsTest extends TestCase
 
         try {
             $pipe->handle($passable, function (Seeding $seeding) {
-                $seeding->steps->each(fn ($step) => $step());
+                $seeding->steps->each(fn($step) => $step());
             });
         } catch (Throwable $e) {
             static::assertCount(1, $seeder->ran);
-            static::assertContains(VariedSeederWithError::class . '::seedFirst', $seeder->ran);
+            static::assertContains(VariedSeederWithError::class.'::seedFirst', $seeder->ran);
 
             throw $e;
         }
@@ -263,8 +263,134 @@ class WrapSeedStepsTest extends TestCase
 
         $this->app->make(WrapSeedSteps::class)
             ->handle($passable, function (Seeding $seeding) {
-                $seeding->steps->each(fn ($step) => $step());
+                $seeding->steps->each(fn($step) => $step());
             });
 
+    }
+
+    public function test_retries_unique_constraint_validation(): void
+    {
+        $seeder = new class extends Seeder {
+            public $ran = 0;
+
+            public function seed()
+            {
+                $this->ran++;
+
+                throw new UniqueConstraintViolationException('test', 'sql', [], new Exception());
+            }
+        };
+
+        $command = $this->mock(SeedCommand::class, function (MockInterface $mock) {
+            $factory = $this->mock(Factory::class, function (MockInterface $mock) {
+                $mock->expects('twoColumnDetail')->with('~ Seed', '<fg=yellow;options=bold>RETRY UNIQUE</>');
+                $mock->expects('twoColumnDetail')->with('! Seed', '<fg=red;options=bold>ERROR</>');
+            });
+
+            $mock->expects('outputComponents')->twice()->andReturn($factory);
+        });
+
+        $passable = new Seeding($this->app, $command, $seeder, [], new Collection([
+            new ReflectionMethod($seeder, 'seed'),
+        ]));
+
+        $pipe = $this->app->make(WrapSeedSteps::class);
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        try {
+            $pipe->handle($passable, function (Seeding $seeding) {
+                $seeding->steps->each(fn($step) => $step());
+            });
+        } catch (UniqueConstraintViolationException $e) {
+            static::assertSame(2, $seeder->ran);
+
+            throw $e;
+        }
+    }
+
+    public function test_doesnt_retries_unique_constraint_validation_when_transactions_disabled(): void
+    {
+        $seeder = new class extends Seeder {
+            public $ran = 0;
+
+            public bool $useTransactions = false;
+
+            public function seed()
+            {
+                $this->ran++;
+
+                throw new UniqueConstraintViolationException('test', 'sql', [], new Exception());
+            }
+        };
+
+        $command = $this->mock(SeedCommand::class, function (MockInterface $mock) {
+            $factory = $this->mock(Factory::class, function (MockInterface $mock) {
+                $mock->expects('twoColumnDetail')->with('~ Seed', '<fg=yellow;options=bold>RETRY UNIQUE</>')->never();
+                $mock->expects('twoColumnDetail')->with('! Seed', '<fg=red;options=bold>ERROR</>');
+            });
+
+            $mock->expects('outputComponents')->andReturn($factory);
+        });
+
+        $passable = new Seeding($this->app, $command, $seeder, [], new Collection([
+            new ReflectionMethod($seeder, 'seed'),
+        ]));
+
+        $pipe = $this->app->make(WrapSeedSteps::class);
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        try {
+            $pipe->handle($passable, function (Seeding $seeding) {
+                $seeding->steps->each(fn($step) => $step());
+            });
+        } catch (UniqueConstraintViolationException $e) {
+            static::assertSame(1, $seeder->ran);
+
+            throw $e;
+        }
+    }
+
+    public function test_retries_unique_constraint_validation_a_number_of_tries(): void
+    {
+        $seeder = new class extends Seeder {
+            public $ran = 0;
+
+            #[SeedStep(retryUnique: 3)]
+            public function seed()
+            {
+                $this->ran++;
+
+                throw new UniqueConstraintViolationException('test', 'sql', [], new Exception());
+            }
+        };
+
+        $command = $this->mock(SeedCommand::class, function (MockInterface $mock) {
+            $factory = $this->mock(Factory::class, function (MockInterface $mock) {
+                $mock->expects('twoColumnDetail')->times(3)->with('~ Seed', '<fg=yellow;options=bold>RETRY UNIQUE</>');
+                $mock->expects('twoColumnDetail')->with('! Seed', '<fg=red;options=bold>ERROR</>');
+            });
+
+            $mock->expects('outputComponents')->times(4)->andReturn($factory);
+        });
+
+        $passable = new Seeding($this->app, $command, $seeder, [], new Collection([
+            new ReflectionMethod($seeder, 'seed'),
+        ]));
+
+        $pipe = $this->app->make(WrapSeedSteps::class);
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        try {
+            $pipe->handle($passable, function (Seeding $seeding) {
+                $seeding->steps->each(fn($step) => $step());
+            });
+        } catch (UniqueConstraintViolationException $e) {
+            static::assertSame(4, $seeder->ran);
+
+            throw $e;
+        }
     }
 }

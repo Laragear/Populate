@@ -309,6 +309,43 @@ class WrapSeedStepsTest extends TestCase
         }
     }
 
+    public function test_retries_unique_constraint_validation_continiues_seeding(): void
+    {
+        $seeder = new class extends Seeder {
+            public $ran = 0;
+
+            public function seed()
+            {
+                $this->ran++;
+
+                if ($this->ran < 2) {
+                    throw new UniqueConstraintViolationException('test', 'sql', [], new Exception());
+                }
+            }
+        };
+
+        $command = $this->mock(SeedCommand::class, function (MockInterface $mock) {
+            $factory = $this->mock(Factory::class, function (MockInterface $mock) {
+                $mock->expects('twoColumnDetail')->with('~ Seed', '<fg=yellow;options=bold>RETRY UNIQUE</>');
+                $mock->expects('twoColumnDetail')->with('~ Seed', '<fg=green;options=bold>DONE</>');
+                $mock->expects('twoColumnDetail')->with('! Seed', '<fg=red;options=bold>ERROR</>')->never();
+            });
+
+            $mock->expects('outputComponents')->times(2)->andReturn($factory);
+        });
+
+        $passable = new Seeding($this->app, $command, $seeder, [], new Collection([
+            new ReflectionMethod($seeder, 'seed'),
+        ]));
+
+        $this->app->make(WrapSeedSteps::class)
+            ->handle($passable, function (Seeding $seeding) {
+                $seeding->steps->each(fn($step) => $step());
+            });
+
+        static::assertSame(2, $seeder->ran);
+    }
+
     public function test_doesnt_retries_unique_constraint_validation_when_transactions_disabled(): void
     {
         $seeder = new class extends Seeder {
@@ -389,6 +426,48 @@ class WrapSeedStepsTest extends TestCase
             });
         } catch (UniqueConstraintViolationException $e) {
             static::assertSame(4, $seeder->ran);
+
+            throw $e;
+        }
+    }
+
+    public function test_doesnt_retry_when_retry_unique_is_false(): void
+    {
+        $seeder = new class extends Seeder {
+            public $ran = 0;
+
+            #[SeedStep(retryUnique: false)]
+            public function seed()
+            {
+                $this->ran++;
+
+                throw new UniqueConstraintViolationException('test', 'sql', [], new Exception());
+            }
+        };
+
+        $command = $this->mock(SeedCommand::class, function (MockInterface $mock) {
+            $factory = $this->mock(Factory::class, function (MockInterface $mock) {
+                $mock->expects('twoColumnDetail')->with('~ Seed', '<fg=yellow;options=bold>RETRY UNIQUE</>')->never();
+                $mock->expects('twoColumnDetail')->with('! Seed', '<fg=red;options=bold>ERROR</>');
+            });
+
+            $mock->expects('outputComponents')->andReturn($factory);
+        });
+
+        $passable = new Seeding($this->app, $command, $seeder, [], new Collection([
+            new ReflectionMethod($seeder, 'seed'),
+        ]));
+
+        $pipe = $this->app->make(WrapSeedSteps::class);
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        try {
+            $pipe->handle($passable, function (Seeding $seeding) {
+                $seeding->steps->each(fn($step) => $step());
+            });
+        } catch (UniqueConstraintViolationException $e) {
+            static::assertSame(1, $seeder->ran);
 
             throw $e;
         }

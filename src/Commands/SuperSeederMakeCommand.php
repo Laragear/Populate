@@ -2,14 +2,14 @@
 
 namespace Laragear\Populate\Commands;
 
-use Illuminate\Database\Console\Seeds\SeederMakeCommand as BaseSeederMakeCommand;
+use Illuminate\Database\Console\Seeds\SeederMakeCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 /**
  * @internal
  */
 #[AsCommand(name: 'make:super-seeder')]
-class SeederMakeCommand extends BaseSeederMakeCommand
+class SuperSeederMakeCommand extends SeederMakeCommand
 {
     /**
      * The console command name.
@@ -52,6 +52,6 @@ class SeederMakeCommand extends BaseSeederMakeCommand
     {
         return is_file($customPath = $this->laravel->basePath(trim($stub, '/')))
             ? $customPath
-            : __DIR__.'/../../stubs'.$stub;
+            : __DIR__.'/../..'.$stub;
     }
 }

@@ -112,9 +112,15 @@ class UserSeeder extends Seeder
 > }
 > ```
 
+If you want to change the seeder stub, you may publish it through the `vendor:publish` Artisan command under the `stub` tag.
+
+```shell
+php artisan vendor:publish --provider=Laragear\Populate\PopulateServiceProvider --tag=stubs
+```
+
 ## Usage 
 
-Instead of using the `run()` method in your seeder, this librarty seeders use the concept of **Seed Steps**. A Seed Step is just a public method that starts with `seed`, or uses the `Laragear\Populate\Attributes\SeedStep` attribute, named to briefly describe the records that are being inserted.
+Instead of using the `run()` method in your seeder, this library's seeders use the concept of **Seed Steps**. A Seed Step is just a public method that starts with `seed`, or uses the `Laragear\Populate\Attributes\SeedStep` attribute, named to briefly describe the records that are being inserted.
 
 The container instantiates the Seeder and also calls each Seed Step, so you can use Dependency Injection as arguments anywhere you require.
 

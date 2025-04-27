@@ -11,6 +11,13 @@ use Illuminate\Support\ServiceProvider;
 class PopulateServiceProvider extends ServiceProvider
 {
     /**
+     * The path to the stub file.
+     *
+     * @const string
+     */
+    public const STUB = __DIR__.'/../stubs/super-seeder.stub';
+
+    /**
      * Registers the application services.
      */
     public function register(): void
@@ -22,6 +29,8 @@ class PopulateServiceProvider extends ServiceProvider
             $command->addOption('continue', description: 'Resume from a previous failed or incomplete seeding.');
         });
 
-        $this->commands(Commands\SeederMakeCommand::class);
+        $this->commands(Commands\SuperSeederMakeCommand::class);
+
+        $this->publishes([static::STUB => $this->app->basePath('stubs/super-seeder.stub')], 'stubs');
     }
 }

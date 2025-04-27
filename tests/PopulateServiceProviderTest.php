@@ -4,9 +4,8 @@ namespace Tests;
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\Console\Seeds\SeedCommand;
-use Illuminate\Support\Facades\Artisan;
 use Laragear\MetaTesting\InteractsWithServiceProvider;
-use Laragear\Populate\Commands\SeederMakeCommand;
+use Laragear\Populate\Commands\SuperSeederMakeCommand;
 use Laragear\Populate\Populator;
 
 class PopulateServiceProviderTest extends TestCase
@@ -34,6 +33,11 @@ class PopulateServiceProviderTest extends TestCase
         $commands = $this->app->make(Kernel::class)->all();
 
         static::assertArrayHasKey('make:super-seeder', $commands);
-        static::assertInstanceOf(SeederMakeCommand::class, $commands['make:super-seeder']);
+        static::assertInstanceOf(SuperSeederMakeCommand::class, $commands['make:super-seeder']);
+    }
+
+    public function test_publishes_super_seeder_stub(): void
+    {
+        $this->assertPublishes($this->app->basePath('stubs/super-seeder.stub'), 'stubs');
     }
 }

@@ -291,7 +291,7 @@ public function onError($exception)
 
 Laragear's Seeders support skipping either a Seed Step or the whole Seeder. Both are done through the `skip()` method.
 
-### Skipping a Seed Step
+#### Skipping a Seed Step
 
 To skip a Seed Step, you only need to call the `skip()` method inside it. 
 

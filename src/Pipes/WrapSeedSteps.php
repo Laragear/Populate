@@ -48,16 +48,15 @@ class WrapSeedSteps
                         return;
                     }
 
-                    $this->parseResult(
-                        $this->handleSeedStep(
-                            $seeding,
-                            $method,
-                            $seedStep,
-                            $seeding->parameters[$method->name] ?? [],
-                        ),
+                    $result = $this->handleSeedStep(
+                        $seeding, $method, $seedStep, $seeding->parameters[$method->name] ?? []
                     );
 
-                    $this->data->continue[$seeding->seeder::class][$method->name] = true;
+                    if ($result === true) {
+                        $seeding->twoColumn("~ $seedStep->as", '<fg=green;options=bold>DONE</>');
+
+                        $this->data->continue[$seeding->seeder::class][$method->name] = true;
+                    }
                 };
             },
         );
@@ -102,9 +101,9 @@ class WrapSeedSteps
         ReflectionMethod $method,
         SeedStep $step,
         array $parameters,
-    ): mixed {
+    ): bool {
         try {
-            $result = $this->runSeedStep($seeding, $method, $parameters, $step->withoutModelEvents);
+            $this->parseResult($this->runSeedStep($seeding, $method, $parameters, $step->withoutModelEvents));
         } catch (SkipSeeding $e) {
             return $this->outputSeedStepSkipped($seeding, $step, $e);
         } catch (UniqueConstraintViolationException $e) {
@@ -121,9 +120,7 @@ class WrapSeedSteps
             $this->throwStepError($seeding, $step, $e);
         }
 
-        $seeding->twoColumn("~ $step->as", '<fg=green;options=bold>DONE</>');
-
-        return $result;
+        return true;
     }
 
     /**

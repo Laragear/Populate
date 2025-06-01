@@ -451,6 +451,29 @@ class CommentSeeder extends Seeder
 > 
 > Transactions use the `db:seed` command declared connection.
 
+## Injecting Factory instances
+
+If you're injecting factory instances into a seed step, you will find that the `configure()` method of the state won't be called since it's only set when using `Model::factory()` or `ModelFactory::new()` static methods.
+
+If your Factory overrides the `configure()` method, you're encouraged to manually instance the factory inside your seeder.
+
+```php
+use App\Models\Comment;
+use Laragear\Populate\Seeder;
+
+class CommentSeeder extends Seeder
+{
+    public function seedGuestComments()
+    {
+        $factory = Comment::factory();
+        
+        // ...
+    }
+
+    // ...
+}
+```
+
 ## Laravel Octane compatibility
 
 - There are no singletons using a stale app instance.

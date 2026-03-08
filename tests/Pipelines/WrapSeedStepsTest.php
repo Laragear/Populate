@@ -252,8 +252,8 @@ class WrapSeedStepsTest extends TestCase
             new Collection([$model]),
         );
 
-        $factory->expects('create');
-        $model->expects('push');
+        $factory->expects('create')->andReturn(Collection::times(10));
+        $model->expects('push')->andReturnTrue();
 
         $passable = new Seeding($this->app, null, $seeder, [], new Collection([
             new ReflectionMethod(VariedSeederWithParseableReturns::class, 'seedFactory'),
@@ -265,7 +265,6 @@ class WrapSeedStepsTest extends TestCase
             ->handle($passable, function (Seeding $seeding) {
                 $seeding->steps->each(fn($step) => $step());
             });
-
     }
 
     public function test_retries_unique_constraint_validation(): void

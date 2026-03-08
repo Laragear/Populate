@@ -14,10 +14,8 @@ class Populator extends Pipeline
 {
     /**
      * The default storage path to save incomplete seeding.
-     *
-     * @const string
      */
-    public const STORAGE_PATH = 'framework/seeding';
+    public const string STORAGE_PATH = 'framework/seeding';
 
     /**
      * If the Seeding should use transactions.

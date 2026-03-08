@@ -17,6 +17,7 @@ use Laragear\Populate\Seeder;
 use Laragear\Populate\Seeding;
 use ReflectionMethod;
 use Throwable;
+use function is_int;
 use function method_exists;
 
 /**
@@ -52,8 +53,10 @@ class WrapSeedSteps
                         $seeding, $method, $seedStep, $seeding->parameters[$method->name] ?? []
                     );
 
-                    if ($result === true) {
-                        $seeding->twoColumn("~ $seedStep->as", '<fg=green;options=bold>DONE</>');
+                    if ($result === true || is_int($result)) {
+                        $text = is_int($result) ? "($result) DONE" : 'DONE';
+
+                        $seeding->twoColumn("~ $seedStep->as", "<fg=green;options=bold>$text</>");
 
                         $this->data->continue[$seeding->seeder::class][$method->name] = true;
                     }
@@ -81,13 +84,14 @@ class WrapSeedSteps
     /**
      * Parse the results of the Seed Step result.
      */
-    protected function parseResult(mixed $result): void
+    protected function parseResult(mixed $result): int|bool
     {
-        match (true) {
-            $result instanceof Factory => $result->create(),
+        return match(true) {
+            is_int($result) => $result,
+            $result instanceof Factory => $result->create()->count(),
             $result instanceof Model => $result->push(),
-            $result instanceof Collection => $result->each->push(),
-            default => null,
+            $result instanceof Collection => $result->each->push()->count(), // @phpstan-ignore-line
+            default => true
         };
     }
 
@@ -101,9 +105,9 @@ class WrapSeedSteps
         ReflectionMethod $method,
         SeedStep $step,
         array $parameters,
-    ): bool {
+    ): int|bool {
         try {
-            $this->parseResult($this->runSeedStep($seeding, $method, $parameters, $step->withoutModelEvents));
+            $result = $this->parseResult($this->runSeedStep($seeding, $method, $parameters, $step->withoutModelEvents));
         } catch (SkipSeeding $e) {
             return $this->outputSeedStepSkipped($seeding, $step, $e);
         } catch (UniqueConstraintViolationException $e) {
@@ -120,7 +124,7 @@ class WrapSeedSteps
             $this->throwStepError($seeding, $step, $e);
         }
 
-        return true;
+        return $result;
     }
 
     /**

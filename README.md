@@ -4,7 +4,7 @@
 [![Codecov coverage](https://codecov.io/gh/Laragear/Populate/graph/badge.svg?token=ck17pBP6VZ)](https://codecov.io/gh/Laragear/Populate)
 [![Maintainability](https://qlty.sh/badges/34e3d55f-06cd-4a6c-b8d8-9d21ccbbcfb7/maintainability.svg)](https://qlty.sh/gh/Laragear/projects/Populate)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=Laragear_Populate&metric=alert_status)](https://sonarcloud.io/dashboard?id=Laragear_Populate)
-[![Laravel Octane Compatibility](https://img.shields.io/badge/Laravel%20Octane-Compatible-success?style=flat&logo=laravel)](https://laravel.com/docs/12.x/octane#introduction)
+[![Laravel Octane Compatibility](https://img.shields.io/badge/Laravel%20Octane-Compatible-success?style=flat&logo=laravel)](https://laravel.com/docs/13.x/octane#introduction)
 
 Populate your database with a supercharged, continuable seeder.
 
@@ -33,8 +33,8 @@ Your support allows me to keep this package free, up-to-date and maintainable.
 
 ## Requirements
 
-* PHP 8.2
-* Laravel 11 or later
+* PHP 8.3 or later
+* Laravel 12 or later
 
 ## Installation
 
@@ -391,7 +391,6 @@ The console output will mark the seed step as `CONTINUE` if the step it already 
     ~ Seed non-authorized users ......................................... DONE
     Database\Seeders\UserSeeder ................................... 32 ms DONE
 
-
 ### Recovering from Unique Constraints Violations
 
 Sometimes a Seed Step may throw a _Unique Constraints Violation_ exception, which happens when trying to insert a value that already exists on _unique_ column, like primary keys. It's not too common, but it usually happens when a random generator mistakenly repeats a value, like emails or text. 
@@ -485,10 +484,10 @@ There should be no problems using this package with Laravel Octane.
 
 ## Security
 
-If you discover any security related issues, issue a [Security Advisor](https://github.com/Laragear/Populate/security/advisories/new)
+If you discover any security-related issues, issue a [Security Advisor](https://github.com/Laragear/Populate/security/advisories/new)
 
 # License
 
-This specific package version is licensed under the terms of the [MIT License](LICENSE.md), at time of publishing.
+This specific package version is licensed under the terms of the [MIT License](LICENSE.md), at the time of publishing.
 
-[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011-2025 Laravel LLC.
+[Laravel](https://laravel.com) is a Trademark of [Taylor Otwell](https://github.com/TaylorOtwell/). Copyright © 2011–2026 Laravel LLC.

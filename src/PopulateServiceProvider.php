@@ -12,10 +12,8 @@ class PopulateServiceProvider extends ServiceProvider
 {
     /**
      * The path to the stub file.
-     *
-     * @const string
      */
-    public const STUB = __DIR__.'/../stubs/super-seeder.stub';
+    public const string STUB = __DIR__.'/../stubs/super-seeder.stub';
 
     /**
      * Registers the application services.

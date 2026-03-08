@@ -17,16 +17,16 @@
         "issues": "https://github.com/Laragear/Populate/issues"
     },
     "require": {
-        "php": "^8.2",
-        "illuminate/console": "11.*|12.*",
-        "illuminate/database": "11.*|12.*",
-        "illuminate/filesystem": "11.*|12.*",
-        "illuminate/pipeline": "11.*|12.*",
-        "illuminate/support": "11.*|12.*"
+        "php": "^8.3",
+        "illuminate/console": "12.*|13.*",
+        "illuminate/database": "12.*|13.*",
+        "illuminate/filesystem": "12.*|13.*",
+        "illuminate/pipeline": "12.*|13.*",
+        "illuminate/support": "12.*|13.*"
     },
     "require-dev": {
-        "laragear/meta-testing": "^3.1.0",
-        "orchestra/testbench": "9.*|10.*"
+        "laragear/meta-testing": "4.*",
+        "orchestra/testbench": "10.*|11.*"
     },
     "autoload": {
         "psr-4": {

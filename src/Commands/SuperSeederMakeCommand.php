@@ -43,7 +43,7 @@ class SuperSeederMakeCommand extends SeederMakeCommand
     }
 
     /**
-     * Resolve the fully-qualified path to the stub.
+     * Resolve the fully qualified path to the stub.
      *
      * @param  string  $stub
      * @return string

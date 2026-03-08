@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check file permissions
         run: |
@@ -35,7 +35,7 @@ jobs:
           tools: parallel-lint
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Validate Composer configuration
         run: composer validate --strict
@@ -54,12 +54,12 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - 8.2
           - 8.3
           - 8.4
+          - 8.5
         laravel-constraint:
-          - 11.*
           - 12.*
+          - 13.*
         dependencies:
           - lowest
           - highest
@@ -73,7 +73,7 @@ jobs:
           coverage: xdebug
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         uses: ramsey/composer-install@v3
@@ -107,7 +107,7 @@ jobs:
           coverage: none
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         uses: ramsey/composer-install@v3
@@ -125,7 +125,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check exported files
         run: |

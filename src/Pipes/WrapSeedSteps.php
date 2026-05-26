@@ -4,11 +4,11 @@ namespace Laragear\Populate\Pipes;
 
 use Closure;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Enumerable;
 use Illuminate\Support\Str;
 use Laragear\Populate\Attributes\SeedStep;
 use Laragear\Populate\ContinueData;
@@ -50,13 +50,18 @@ class WrapSeedSteps
                     }
 
                     $result = $this->handleSeedStep(
-                        $seeding, $method, $seedStep, $seeding->parameters[$method->name] ?? []
+                        $seeding, $method, $seedStep, $seeding->parameters[$method->name] ?? [],
                     );
 
                     if ($result === true || is_int($result)) {
-                        $text = is_int($result) ? "($result) DONE" : 'DONE';
+                        $text = '<fg=green;options=bold>DONE</>';
 
-                        $seeding->twoColumn("~ $seedStep->as", "<fg=green;options=bold>$text</>");
+                        // If the results is an integer, add it as part of the results.
+                        if (is_int($result)) {
+                            $text = "<fg=gray>($result)</> " . $text;
+                        }
+
+                        $seeding->twoColumn("~ $seedStep->as", $text);
 
                         $this->data->continue[$seeding->seeder::class][$method->name] = true;
                     }
@@ -90,7 +95,7 @@ class WrapSeedSteps
             is_int($result) => $result,
             $result instanceof Factory => $result->create()->count(),
             $result instanceof Model => $result->push(),
-            $result instanceof Collection => $result->each->push()->count(), // @phpstan-ignore-line
+            $result instanceof Enumerable => $result->each(fn (Model $model) => $model->push())->count(),
             default => true
         };
     }

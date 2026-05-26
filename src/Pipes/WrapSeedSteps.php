@@ -95,7 +95,7 @@ class WrapSeedSteps
             is_int($result) => $result,
             $result instanceof Factory => $result->create()->count(),
             $result instanceof Model => $result->push(),
-            $result instanceof Enumerable => $result->each(fn (Model $model) => $model->push())->count(), // @phpstan-ignore-line
+            $result instanceof Enumerable => $result->each(fn (Model $model) => $model->push())->count(),
             default => true
         };
     }

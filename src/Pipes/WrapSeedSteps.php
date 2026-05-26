@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Illuminate\Support\Str;
 use Laragear\Populate\Attributes\SeedStep;
 use Laragear\Populate\ContinueData;
@@ -95,7 +95,7 @@ class WrapSeedSteps
             is_int($result) => $result,
             $result instanceof Factory => $result->create()->count(),
             $result instanceof Model => $result->push(),
-            $result instanceof Collection => $result->each->push()->count(), // @phpstan-ignore-line
+            $result instanceof Enumerable => $result->each(fn (Model $model) => $model->push())->count(), // @phpstan-ignore-line
             default => true
         };
     }

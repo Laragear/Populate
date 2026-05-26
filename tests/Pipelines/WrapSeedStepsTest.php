@@ -244,8 +244,18 @@ class WrapSeedStepsTest extends TestCase
         }
     }
 
-    public function test_parses_results(): void
+    public function test_parses_results_and_outputs_count_if_countable(): void
     {
+        $command = $this->mock(SeedCommand::class, function (MockInterface $mock) {
+            $factory = $this->mock(Factory::class, function (MockInterface $mock) {
+                $mock->expects('twoColumnDetail')->with("~ Seed factory", '<fg=gray>(10)</> <fg=green;options=bold>DONE</>');
+                $mock->expects('twoColumnDetail')->with("~ Seed model", '<fg=green;options=bold>DONE</>');
+                $mock->expects('twoColumnDetail')->with("~ Seed collection", '<fg=gray>(1)</> <fg=green;options=bold>DONE</>');
+            });
+
+            $mock->expects('outputComponents')->times(3)->andReturn($factory);
+        });
+
         $seeder = new VariedSeederWithParseableReturns(
             $factory = $this->mock(EloquentFactory::class),
             $model = $this->mock(Model::class),
@@ -253,9 +263,9 @@ class WrapSeedStepsTest extends TestCase
         );
 
         $factory->expects('create')->andReturn(Collection::times(10));
-        $model->expects('push')->andReturnTrue();
+        $model->expects('push')->twice()->andReturnTrue();
 
-        $passable = new Seeding($this->app, null, $seeder, [], new Collection([
+        $passable = new Seeding($this->app, $command, $seeder, [], new Collection([
             new ReflectionMethod(VariedSeederWithParseableReturns::class, 'seedFactory'),
             new ReflectionMethod(VariedSeederWithParseableReturns::class, 'seedModel'),
             new ReflectionMethod(VariedSeederWithParseableReturns::class, 'seedCollection'),

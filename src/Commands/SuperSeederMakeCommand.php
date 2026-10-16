@@ -3,12 +3,10 @@
 namespace Laragear\Populate\Commands;
 
 use Illuminate\Database\Console\Seeds\SeederMakeCommand;
-use Symfony\Component\Console\Attribute\AsCommand;
 
 /**
  * @internal
  */
-#[AsCommand(name: 'make:super-seeder')]
 class SuperSeederMakeCommand extends SeederMakeCommand
 {
     /**

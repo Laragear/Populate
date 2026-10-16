@@ -10,11 +10,11 @@ use Illuminate\Database\Console\Seeds\SeederMakeCommand;
 class SuperSeederMakeCommand extends SeederMakeCommand
 {
     /**
-     * The console command name.
+     * The name and signature of the console command.
      *
      * @var string
      */
-    protected $name = 'make:super-seeder';
+    protected $signature = 'make:super-seeder';
 
     /**
      * The console command description.

@@ -27,7 +27,9 @@ class PopulateServiceProvider extends ServiceProvider
             $command->addOption('continue', description: 'Resume from a previous failed or incomplete seeding.');
         });
 
-        $this->commands(Commands\SuperSeederMakeCommand::class);
+        if ($this->app->runningInConsole()) {
+            $this->commands(Commands\SuperSeederMakeCommand::class);
+        }
 
         $this->publishes([static::STUB => $this->app->basePath('stubs/super-seeder.stub')], 'stubs');
     }

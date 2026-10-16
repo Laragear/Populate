@@ -2,10 +2,8 @@
 
 namespace Tests;
 
-use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\Console\Seeds\SeedCommand;
 use Laragear\MetaTesting\InteractsWithServiceProvider;
-use Laragear\Populate\Commands\SuperSeederMakeCommand;
 use Laragear\Populate\Populator;
 
 class PopulateServiceProviderTest extends TestCase
@@ -30,10 +28,7 @@ class PopulateServiceProviderTest extends TestCase
 
     public function test_adds_super_seeder_command(): void
     {
-        $commands = $this->app->make(Kernel::class)->all();
-
-        static::assertArrayHasKey('make:super-seeder', $commands);
-        static::assertInstanceOf(SuperSeederMakeCommand::class, $commands['make:super-seeder']);
+        $this->assertHasCommand('make:super-seeder');
     }
 
     public function test_publishes_super_seeder_stub(): void
